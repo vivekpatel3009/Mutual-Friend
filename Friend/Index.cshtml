@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+@model MutualFriend.Models.FriendModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+@Styles.Render("~/Content/css")
+@Scripts.Render("~/bundles/modernizr")
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    <form action="@Url.Action("Add", "Friend")" method="post">
+        <div class="container">
+
+            <h2>Friend Record</h2>
+            <input type="text" id="txtName" name="txtName"/>
+            <button type="submit" class="btn btn-primary">Add New Employee</button><br /><br />
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            Mutualfriend
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="tbody"></tbody>
+            </table>
+        </div>
+    </form>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        loadData();
+    });
+    //Load Data function
+    function loadData() {
+        $.ajax({
+            url: "/Friend/List",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var html = '';
+                $.each(result, function (key, item) {
+                    html += '<tr>';
+                    html += '<td><input type="checkbox" id="chk' + item.Id + '" name="' + item.Id + '" value="' + item.Id + '"></td>';
+                    html += '<td><a href="/Friend/Contact?Id=' + item.Id + '">' + item.PersonName + '</a></td>';
+                    html += '<td><a href="#" onclick="return getbyID(' + item.Id + ')">Edit</a></td>';
+                    html += '</tr>';
+                });
+                $('.tbody').html(html);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    //Add Data Function
+    function Add() {
+        var res = validate();
+        if (res == false) {
+            return false;
+        }
+        var empObj = {
+            Id: $('#Id').val(),
+            Name: $('#txtName').val()
+        };
+        $.ajax({
+            url: "/Friend/Add",
+            data: JSON.stringify(empObj),
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                loadData();
+           //     $('#myModal').modal('hide');
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    //Valdidation using jquery
+    function validate() {
+        var isValid = true;
+        if ($('#txtName').val() == "") {
+            $('#txtName').css('border-color', 'Red');
+            isValid = false;
+        }
+        else {
+            $('#txtName').css('border-color', 'lightgrey');
+        }
+
+        return isValid;
+    }
+</script>
